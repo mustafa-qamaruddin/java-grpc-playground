@@ -26,17 +26,13 @@ public class TodoClient {
 
   public void createTodo() {
     CreateTodoResponse response = null;
-    try {
-      response = todoServiceBlockingStub.createTodo(
-        CreateTodoRequest.newBuilder()
-          .setName("todo")
-          .setDescription("vip")
-          .setDueDate(Timestamp.parseFrom("2023-12-25".getBytes()))
-          .build()
-      );
-    } catch (InvalidProtocolBufferException e) {
-      throw new RuntimeException(e);
-    }
+    CreateTodoRequest createTodoRequest = null;
+    createTodoRequest = CreateTodoRequest.newBuilder()
+      .setName("todo")
+      .setDescription("vip")
+      //.setDueDate(Timestamp.parseFrom("2024-09-01T21:46:43Z".getBytes()))
+      .build();
+    response = todoServiceBlockingStub.createTodo(createTodoRequest);
 
     if (response.hasTodo()) {
       System.out.println(response.getTodo().getName());

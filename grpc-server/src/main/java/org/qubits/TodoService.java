@@ -33,6 +33,9 @@ public class TodoService extends TodoServiceGrpc.TodoServiceImplBase {
 
     todos.add(todo);
 
+    responseObserver.onNext(CreateTodoResponse.newBuilder()
+        .setTodo(todo)
+      .build());
     responseObserver.onCompleted();
   }
 }
