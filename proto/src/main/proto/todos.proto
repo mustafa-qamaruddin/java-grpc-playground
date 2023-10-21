@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.qubits.grpc.todo";
+option java_outer_classname = "TodoProto";
+option objc_class_prefix = "";
+
+package todo;
+
+import "google/protobuf/timestamp.proto"; // Import the timestamp type
+
+message Todo {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    google.protobuf.Timestamp created_date = 4;
+    google.protobuf.Timestamp updated_date = 5;
+    google.protobuf.Timestamp due_date = 6;
+}
+
+message CreateTodoRequest {
+    string name = 1;
+    string description = 2;
+    google.protobuf.Timestamp due_date = 3;
+}
+
+message CreateTodoResponse {
+    Todo todo = 1;
+}
+
+message ReadTodoRequest {
+    int64 id = 1;
+}
+
+message ReadTodoResponse {
+    Todo todo = 1;
+}
+
+message UpdateTodoRequest {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    google.protobuf.Timestamp due_date = 4;
+}
+
+message UpdateTodoResponse {
+    Todo todo = 1;
+}
+
+message DeleteTodoRequest {
+    int64 id = 1;
+}
+
+message DeleteTodoResponse {
+    bool success = 1;
+}
+
+message ListTodoRequest {
+    int32 page_number = 1;
+    int32 page_size = 2;
+}
+
+message ListTodoResponse {
+    repeated Todo todos = 1;
+    int32 total_count = 2;
+}
+
+service TodoService {
+    rpc CreateTodo (CreateTodoRequest) returns (CreateTodoResponse);
+    rpc ReadTodo (ReadTodoRequest) returns (ReadTodoResponse);
+    rpc UpdateTodo (UpdateTodoRequest) returns (UpdateTodoResponse);
+    rpc DeleteTodo (DeleteTodoRequest) returns (DeleteTodoResponse);
+    rpc ListAllTodo (ListTodoRequest) returns (ListTodoResponse);
+}
