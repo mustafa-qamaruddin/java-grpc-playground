@@ -4,15 +4,16 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Main {
   public static void main(String[] args) {
     System.out.println("Starting grpc server");
 
-    Server server = ServerBuilder
-      .forPort(9089)
-      .addService(new TodoService())
-      .build(); // create a instance of server
+    Server server = ServerFactory.create(
+      ServerType.ALTS,
+      List.of(new TodoService())
+    );
 
     try {
       server.start();
@@ -20,7 +21,7 @@ public class Main {
       throw new RuntimeException(e);
     }
 
-    System.out.println("Server Started at "+ server.getPort());
+    System.out.println("Server Started at " + server.getPort());
 
     try {
       server.awaitTermination();
