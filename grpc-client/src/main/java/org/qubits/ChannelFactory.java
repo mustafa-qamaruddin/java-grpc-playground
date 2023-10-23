@@ -8,15 +8,14 @@ public class ChannelFactory {
   public static Channel create(ChannelTypeEnum channelTypeEnum) {
     if (channelTypeEnum.equals(ChannelTypeEnum.PLAIN)) {
       return ManagedChannelBuilder
-        .forAddress("localhost", 9089)
-        .usePlaintext()
-        .build();
+          .forAddress("localhost", 9089)
+          .usePlaintext()
+          .build();
     } else if (channelTypeEnum.equals(ChannelTypeEnum.ALTS)) {
       return AltsChannelBuilder
-        .forTarget("localhost")
-        .enableUntrustedAltsForTesting()
-        .()
-        .build();
+          .forTarget("localhost")
+          .enableUntrustedAltsForTesting()
+          .build();
     } else {
       throw new IllegalArgumentException("Channel type is not supported");
     }

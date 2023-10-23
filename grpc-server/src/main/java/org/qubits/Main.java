@@ -1,9 +1,11 @@
 package org.qubits;
 
+import com.google.common.collect.Lists;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 public class Main {
@@ -11,8 +13,8 @@ public class Main {
     System.out.println("Starting grpc server");
 
     Server server = ServerFactory.create(
-      ServerType.ALTS,
-      List.of(new TodoService())
+        ServerType.ALTS,
+        Collections.singletonList(new TodoService())
     );
 
     try {
