@@ -13,8 +13,9 @@ public class Main {
     System.out.println("Starting grpc server");
 
     Server server = ServerFactory.create(
-        ServerType.ALTS,
-        Collections.singletonList(new TodoService())
+        ServerType.PLAIN,
+        Collections.singletonList(new TodoService()),
+        Collections.singletonList(new AuthenticationInterceptor())
     );
 
     try {
