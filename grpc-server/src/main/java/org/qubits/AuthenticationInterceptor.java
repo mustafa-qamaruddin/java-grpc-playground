@@ -30,7 +30,7 @@ public class AuthenticationInterceptor implements ServerInterceptor {
       System.out.println(token);
       // return
       Context context = Context.current().withValue(SUBJECT_ID_KEY, "abc-xyz-123");
-      Contexts.interceptCall(context, call, headers, next);
+      return Contexts.interceptCall(context, call, headers, next);
     }
 
     // failed

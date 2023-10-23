@@ -1,5 +1,6 @@
 package org.qubits;
 
+import io.grpc.CallCredentials;
 import io.grpc.Channel;
 import org.qubits.grpc.todo.CreateTodoRequest;
 import org.qubits.grpc.todo.CreateTodoResponse;
@@ -9,8 +10,10 @@ public class TodoClient {
 
   TodoServiceGrpc.TodoServiceBlockingStub todoServiceBlockingStub;
 
-  public TodoClient(Channel channel) {
-    todoServiceBlockingStub = TodoServiceGrpc.newBlockingStub(channel);
+  public TodoClient(Channel channel, CallCredentials callCredentials) {
+    todoServiceBlockingStub = TodoServiceGrpc
+        .newBlockingStub(channel)
+        .withCallCredentials(callCredentials);
   }
 
   public void createTodo() {
