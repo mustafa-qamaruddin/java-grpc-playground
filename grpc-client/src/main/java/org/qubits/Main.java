@@ -8,8 +8,9 @@ public class Main {
     Channel channel = ChannelFactory.create(ChannelTypeEnum.PLAIN);
     AuthenticationCredentials authenticationCredentials = new AuthenticationCredentials();
     TodoClient todoClient = new TodoClient(channel, authenticationCredentials);
-    int limit = 100;
+    long limit = 100;
     while (0<limit--) {
+      todoClient.getTodo(limit);
       todoClient.createTodo();
     }
   }

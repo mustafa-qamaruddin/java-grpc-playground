@@ -6,9 +6,14 @@
 2. [x] Implement OAuth 2.0 Authentification
 ~~3. [ ] Implement ALTS Authentification~~
 4. [ ] Unit testing
-5. [ ] Error Handling
+5. [ ] Error Handling - Stub Mocking
 6. [ ] Load Balancing
 7. [ ] SSL/TLS
+8. [ ] Implement uni- vs bi-directional
+9. [ ] Implement sync- vs async-stubs
+10. [ ] Implement streams
+11. [ ] Implement Health
+12. [ ] Logging, Monitoring, etc
 
 # ALTS Authentication
 
@@ -23,4 +28,3 @@ status=Status{
   description=Unable to resolve host metadata.google.internal.,
   cause=java.lang.RuntimeException: java.net.UnknownHostException: metadata.google.internal.
 ```
-

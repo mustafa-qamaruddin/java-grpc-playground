@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.qubits.grpc.error";
+option java_outer_classname = "ErrorProto";
+option objc_class_prefix = "";
+
+package todo;
+
+import "google/protobuf/timestamp.proto"; // Import the timestamp type
+
+message ErrorInfo {
+  string title = 1;
+  string description = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  map<string, string> metadata = 4;
+  repeated ErrorInfo errors = 5;
+}
