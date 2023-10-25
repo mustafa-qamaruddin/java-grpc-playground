@@ -4,9 +4,11 @@
 
 1. [x] Implement gRPC TODO resource
 2. [x] Implement OAuth 2.0 Authentification
+
 ~~3. [ ] Implement ALTS Authentification~~
-4. [x] Unit testing - Stub Mocking
-5. [ ] Error Handling
+
+4. [ ] Unit testing - Stub Mocking
+5. [x] Error Handling
 6. [ ] Load Balancing
 7. [ ] SSL/TLS
 8. [ ] Implement uni- vs bi-directional
