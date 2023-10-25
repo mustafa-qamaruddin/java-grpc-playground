@@ -30,3 +30,6 @@ status=Status{
   description=Unable to resolve host metadata.google.internal.,
   cause=java.lang.RuntimeException: java.net.UnknownHostException: metadata.google.internal.
 ```
+
+
+TODO how did the test pass the interceptor for authentication?
