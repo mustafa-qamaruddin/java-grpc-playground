@@ -32,9 +32,16 @@ public class TodoService extends TodoServiceGrpc.TodoServiceImplBase {
 
   @Override
   public void createTodo(CreateTodoRequest request, StreamObserver<CreateTodoResponse> responseObserver) {
+    // current timestamp
+    Timestamp timestamp = Timestamp
+        .newBuilder()
+        .setNanos(Instant.now().getNano())
+        .build();
+
+    // create todo
     Todo todo = Todo.newBuilder()
-        .setCreatedDate(Timestamp.getDefaultInstance())
-        .setUpdatedDate(Timestamp.getDefaultInstance())
+        .setCreatedDate(timestamp)
+        .setUpdatedDate(timestamp)
         .setDueDate(request.getDueDate())
         .setName(request.getName())
         .setDescription(request.getDescription())

@@ -13,7 +13,7 @@
 7. [ ] SSL/TLS
 8. [ ] Implement uni- vs bi-directional
 9. [ ] Implement sync- vs async-stubs
-10. [ ] Implement streams
+10. [ ] Implement streams with error handling
 11. [ ] Implement Health
 12. [ ] Logging, Monitoring, etc
 
