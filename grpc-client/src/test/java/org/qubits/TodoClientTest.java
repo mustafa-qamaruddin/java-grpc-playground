@@ -2,6 +2,11 @@ package org.qubits;
 
 import com.google.protobuf.Timestamp;
 import io.grpc.Channel;
+import io.grpc.Metadata;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
+import io.grpc.ServerInterceptors;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.StreamObserver;
@@ -23,8 +28,10 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.qubits.AuthenticationCredentials.AUTH_HEADER_KEY;
 
 class TodoClientTest {
 
@@ -37,6 +44,7 @@ class TodoClientTest {
 
   TodoClient client;
   private TodoServiceGrpc.TodoServiceImplBase serviceMock;
+  private ServerInterceptor interceptorMock;
 
   @BeforeEach
   void setUp() {
@@ -70,12 +78,25 @@ class TodoClientTest {
         })
     );
 
+    // Mock interceptor
+    interceptorMock = mock(
+        ServerInterceptor.class,
+        AdditionalAnswers.delegatesTo(new ServerInterceptor() {
+          @Override
+          public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+              ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next
+          ) {
+            return next.startCall(call, headers);
+          }
+        })
+    );
+
     // Register server for shutdown
     try {
       grpcCleanup.register(
           InProcessServerBuilder
               .forName(serverName)
-              .addService(serviceMock)
+              .addService(ServerInterceptors.intercept(serviceMock, interceptorMock))
               .directExecutor()
               .build()
               .start()
@@ -106,10 +127,12 @@ class TodoClientTest {
     String name = "sut";
     String description = "sut";
     ArgumentCaptor<ReadTodoRequest> requestCaptor = ArgumentCaptor.forClass(ReadTodoRequest.class);
+    ArgumentCaptor<Metadata> interceptorCaptor = ArgumentCaptor.forClass(Metadata.class);
 
     // When
     Todo todo = client.getTodo(1);
     verify(serviceMock).readTodo(requestCaptor.capture(), ArgumentMatchers.any());
+    verify(interceptorMock).interceptCall(any(), interceptorCaptor.capture(), any());
 
     // Then
     assertNotNull(todo);
@@ -117,5 +140,7 @@ class TodoClientTest {
     assertEquals(todo.getDescription(), description);
     assertNotNull(todo.getDueDate());
     assertEquals(requestCaptor.getValue().getId(), 1);
+    // headers must contain a token
+    assertNotNull(interceptorCaptor.getValue().get(AUTH_HEADER_KEY));
   }
 }

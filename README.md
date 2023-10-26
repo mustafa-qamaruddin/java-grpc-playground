@@ -16,6 +16,7 @@
 10. [ ] Implement streams with error handling
 11. [ ] Implement Health
 12. [ ] Logging, Monitoring, etc
+13. [x] Interceptors unit testing
 
 ## ALTS Authentication
 
@@ -83,6 +84,3 @@ tests that don't map to reality, causing the tests to pass, but the system-under
 is complicated, and accurately reproducing that complexity with mocks is very hard. You will be better off and write 
 less code by using InProcessTransport instead. 
 -- [gRPC Unit Test](https://github.com/grpc/grpc-java/blob/master/examples/README.md#unit-test-examples)
-
-
-TODO how did the test pass the interceptor for authentication?

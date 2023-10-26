@@ -1,6 +1,10 @@
 package org.qubits;
 
 import com.google.protobuf.Timestamp;
+import io.grpc.CallCredentials;
+import io.grpc.Metadata;
+import io.grpc.ServerInterceptors;
+import io.grpc.StatusRuntimeException;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -12,8 +16,11 @@ import org.qubits.grpc.todo.TodoServiceGrpc;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.concurrent.Executor;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
+import static org.qubits.AuthenticationInterceptor.AUTH_HEADER_KEY;
 
 class TodoServiceTest {
 
@@ -24,7 +31,8 @@ class TodoServiceTest {
   @Rule
   public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
-  TodoServiceGrpc.TodoServiceBlockingStub todoServiceBlockingStub;
+  TodoServiceGrpc.TodoServiceBlockingStub unAuthClient;
+  TodoServiceGrpc.TodoServiceBlockingStub authClient;
 
   @org.junit.jupiter.api.BeforeEach
   void setUp() {
@@ -35,7 +43,9 @@ class TodoServiceTest {
       grpcCleanup.register(
           InProcessServerBuilder
               .forName(serverName)
-              .addService(new TodoService())
+              .addService(ServerInterceptors.intercept(
+                  new TodoService(), new AuthenticationInterceptor()
+              ))
               .build()
               .start()
       );
@@ -43,8 +53,8 @@ class TodoServiceTest {
       throw new RuntimeException(e);
     }
 
-    // register client for cleanup rule
-    todoServiceBlockingStub = TodoServiceGrpc.newBlockingStub(
+    // register unauthenticated client for cleanup rule
+    unAuthClient = TodoServiceGrpc.newBlockingStub(
         grpcCleanup.register(
             InProcessChannelBuilder
                 .forName(serverName)
@@ -52,6 +62,23 @@ class TodoServiceTest {
                 .build()
         )
     );
+
+    // register authenticated client for cleanup rule
+    authClient = TodoServiceGrpc.newBlockingStub(
+        grpcCleanup.register(
+            InProcessChannelBuilder
+                .forName(serverName)
+                .directExecutor()
+                .build()
+        )
+    ).withCallCredentials(new CallCredentials() {
+      @Override
+      public void applyRequestMetadata(RequestInfo requestInfo, Executor appExecutor, MetadataApplier applier) {
+        Metadata metadata = new Metadata();
+        metadata.put(AUTH_HEADER_KEY, "super-secret-token");
+        applier.apply(metadata);
+      }
+    });
   }
 
   @org.junit.jupiter.api.AfterEach
@@ -72,7 +99,22 @@ class TodoServiceTest {
         .build();
 
     // When
-    CreateTodoResponse createTodoResponse = todoServiceBlockingStub.createTodo(
+    assertThrows(
+        StatusRuntimeException.class,
+        () -> {
+          unAuthClient.createTodo(
+              CreateTodoRequest.newBuilder()
+                  .setName(todo.getName())
+                  .setDescription(todo.getDescription())
+                  .setDueDate(todo.getDueDate())
+                  .build()
+          );
+        },
+        "UNAUTHENTICATED: additional detail"
+    );
+
+    // When
+    CreateTodoResponse createTodoResponse = authClient.createTodo(
         CreateTodoRequest.newBuilder()
             .setName(todo.getName())
             .setDescription(todo.getDescription())
