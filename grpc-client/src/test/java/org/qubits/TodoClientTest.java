@@ -4,11 +4,17 @@ import com.google.protobuf.Timestamp;
 import io.grpc.Channel;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcCleanupRule;
 import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.AdditionalAnswers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import org.qubits.grpc.todo.ReadTodoRequest;
+import org.qubits.grpc.todo.ReadTodoResponse;
 import org.qubits.grpc.todo.Todo;
 import org.qubits.grpc.todo.TodoServiceGrpc;
 
@@ -18,6 +24,7 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 class TodoClientTest {
 
@@ -29,6 +36,7 @@ class TodoClientTest {
   public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
   TodoClient client;
+  private TodoServiceGrpc.TodoServiceImplBase serviceMock;
 
   @BeforeEach
   void setUp() {
@@ -36,7 +44,31 @@ class TodoClientTest {
     String serverName = InProcessServerBuilder.generateName();
 
     // Mock server
-    TodoServiceGrpc.TodoServiceImplBase serviceMock = mock(TodoServiceGrpc.TodoServiceImplBase.class, delegatesTo);
+    serviceMock = mock(
+        TodoServiceGrpc.TodoServiceImplBase.class,
+        AdditionalAnswers.delegatesTo(new TodoServiceGrpc.TodoServiceImplBase() {
+          @Override
+          public void readTodo(ReadTodoRequest request, StreamObserver<ReadTodoResponse> responseObserver) {
+            String name = "sut";
+            String description = "sut";
+            Timestamp timestamp = Timestamp.newBuilder()
+                .setNanos(
+                    Instant.now().getNano()
+                )
+                .build();
+            responseObserver.onNext(ReadTodoResponse.newBuilder()
+                .setTodo(
+                    Todo.newBuilder()
+                        .setName(name)
+                        .setDescription(description)
+                        .setDueDate(timestamp)
+                        .build())
+                .build()
+            );
+            responseObserver.onCompleted();
+          }
+        })
+    );
 
     // Register server for shutdown
     try {
@@ -73,28 +105,17 @@ class TodoClientTest {
     // Given
     String name = "sut";
     String description = "sut";
-    Timestamp timestamp = Timestamp.newBuilder()
-        .setNanos(
-            Instant.now().getNano()
-        )
-        .build();
+    ArgumentCaptor<ReadTodoRequest> requestCaptor = ArgumentCaptor.forClass(ReadTodoRequest.class);
 
     // When
     Todo todo = client.getTodo(1);
+    verify(serviceMock).readTodo(requestCaptor.capture(), ArgumentMatchers.any());
 
     // Then
     assertNotNull(todo);
     assertEquals(todo.getName(), name);
     assertEquals(todo.getDescription(), description);
-    assertEquals(todo.getDueDate(), timestamp);
-
-    //
-    ArgumentCaptor<HelloRequest> requestCaptor = ArgumentCaptor.forClass(HelloRequest.class);
-
-    client.greet("test name");
-
-    verify(serviceImpl)
-        .sayHello(requestCaptor.capture(), ArgumentMatchers.<StreamObserver<HelloReply>>any());
-    assertEquals("test name", requestCaptor.getValue().getName());
+    assertNotNull(todo.getDueDate());
+    assertEquals(requestCaptor.getValue().getId(), 1);
   }
 }
