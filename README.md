@@ -17,7 +17,7 @@
 11. [ ] Implement Health
 12. [ ] Logging, Monitoring, etc.<---------------------------
 13. [x] Interceptors unit testing
-14. [ ] Compression
+14. [x] Compression
 15. [ ] Add addShutdownHook for server
 ## ALTS Authentication
 
@@ -85,3 +85,9 @@ tests that don't map to reality, causing the tests to pass, but the system-under
 is complicated, and accurately reproducing that complexity with mocks is very hard. You will be better off and write 
 less code by using InProcessTransport instead. 
 -- [gRPC Unit Test](https://github.com/grpc/grpc-java/blob/master/examples/README.md#unit-test-examples)
+
+## Compression
+
+The compression, e.x. GZIP is set either for a method or for all methods.
+Beware of compression algorithm negotiations rules.
+-- [Compression Guide](https://grpc.io/docs/guides/compression/#specific-disabling-of-compression)
