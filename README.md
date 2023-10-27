@@ -9,15 +9,16 @@
 
 4. [x] Unit testing - Stub Mocking
 5. [x] Error Handling
-6. [ ] Load Balancing
-7. [ ] SSL/TLS
+6. [ ] Load Balancing.<--------------------------------------
+7. [ ] SSL/TLS.<---------------------------------------------
 8. [ ] Implement uni- vs bi-directional
 9. [ ] Implement sync- vs async-stubs
 10. [ ] Implement streams with error handling
 11. [ ] Implement Health
-12. [ ] Logging, Monitoring, etc
+12. [ ] Logging, Monitoring, etc.<---------------------------
 13. [x] Interceptors unit testing
-
+14. [ ] Compression
+15. [ ] Add addShutdownHook for server
 ## ALTS Authentication
 
 The ALTS is a Google's proprietary application layer transport security protocol. 

@@ -2,9 +2,9 @@ package org.qubits;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.rpc.Status;
 import io.grpc.CallCredentials;
 import io.grpc.Channel;
-import com.google.rpc.Status;
 import io.grpc.protobuf.StatusProto;
 import org.qubits.grpc.error.ErrorInfo;
 import org.qubits.grpc.todo.CreateTodoRequest;
@@ -16,12 +16,14 @@ import org.qubits.grpc.todo.TodoServiceGrpc;
 
 public class TodoClient {
 
+  private static final String COMPRESSION_GZIP = "gzip";
   TodoServiceGrpc.TodoServiceBlockingStub todoServiceBlockingStub;
 
   public TodoClient(Channel channel, CallCredentials callCredentials) {
     todoServiceBlockingStub = TodoServiceGrpc
         .newBlockingStub(channel)
-        .withCallCredentials(callCredentials);
+        .withCallCredentials(callCredentials)
+        .withCompression(COMPRESSION_GZIP);
   }
 
   public void createTodo() {

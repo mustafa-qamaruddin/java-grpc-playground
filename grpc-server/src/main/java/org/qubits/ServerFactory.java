@@ -6,7 +6,6 @@ import io.grpc.ServerBuilder;
 import io.grpc.ServerInterceptor;
 import io.grpc.alts.AltsServerBuilder;
 
-import java.io.File;
 import java.util.List;
 
 public class ServerFactory {
