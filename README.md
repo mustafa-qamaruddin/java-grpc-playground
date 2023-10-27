@@ -88,6 +88,26 @@ less code by using InProcessTransport instead.
 
 ## Compression
 
+Note that gRPC implements asymmetric compression. Server and Client can use different algorithms.
+
 The compression, e.x. GZIP is set either for a method or for all methods.
 Beware of compression algorithm negotiations rules.
 -- [Compression Guide](https://grpc.io/docs/guides/compression/#specific-disabling-of-compression)
+-- [Compression Flowchart](https://github.com/grpc/grpc/blob/master/doc/compression_cookbook.md)
+
+When creating a decompressor, it could be advertised to the peer.
+advertised – If true, the message encoding will be listed in the Accept-Encoding header.
+
+### Compressors Registry
+
+To reduce the footprint of the core gRPC library, the compressors registry can be used to plug any algorithm.
+Note experimental feature.
+
+-- [GitHub Issue #29767](https://github.com/grpc/grpc/issues/29767)
+-- [GitHub Issue #1704](https://github.com/grpc/grpc-java/issues/1704)
+
+<i> Every compressor requires a decompressor </i>
+
+```shell
+Exception in thread "main" io.grpc.StatusRuntimeException: UNIMPLEMENTED: Can't find decompressor for custom
+```

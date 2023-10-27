@@ -5,6 +5,10 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.rpc.Status;
 import io.grpc.CallCredentials;
 import io.grpc.Channel;
+import io.grpc.Compressor;
+import io.grpc.CompressorRegistry;
+import io.grpc.Decompressor;
+import io.grpc.DecompressorRegistry;
 import io.grpc.protobuf.StatusProto;
 import org.qubits.grpc.error.ErrorInfo;
 import org.qubits.grpc.todo.CreateTodoRequest;
@@ -14,16 +18,50 @@ import org.qubits.grpc.todo.ReadTodoResponse;
 import org.qubits.grpc.todo.Todo;
 import org.qubits.grpc.todo.TodoServiceGrpc;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 public class TodoClient {
 
   private static final String COMPRESSION_GZIP = "gzip";
+  private static final String COMPRESSION_CUSTOM = "custom";
   TodoServiceGrpc.TodoServiceBlockingStub todoServiceBlockingStub;
 
   public TodoClient(Channel channel, CallCredentials callCredentials) {
+    // Add new compression algorithm
+    CompressorRegistry.getDefaultInstance().register(new Compressor() {
+      @Override
+      public String getMessageEncoding() {
+        return COMPRESSION_CUSTOM;
+      }
+
+      @Override
+      public OutputStream compress(OutputStream os) throws IOException {
+        // dummy compression for testing only
+        return os;
+      }
+    });
+
+    // Add new decompression algorithm
+    DecompressorRegistry.getDefaultInstance().with(new Decompressor() {
+      @Override
+      public String getMessageEncoding() {
+        return COMPRESSION_CUSTOM;
+      }
+
+      @Override
+      public InputStream decompress(InputStream is) throws IOException {
+        return is;
+      }
+    }, true);
+
+    // create stub
     todoServiceBlockingStub = TodoServiceGrpc
         .newBlockingStub(channel)
         .withCallCredentials(callCredentials)
-        .withCompression(COMPRESSION_GZIP);
+//        .withCompression(COMPRESSION_GZIP)
+        .withCompression(COMPRESSION_CUSTOM);
   }
 
   public void createTodo() {
